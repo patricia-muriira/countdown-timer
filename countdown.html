@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Countdown Timer</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #f5f5f5;
+      }
+
+      .timer-container {
+        text-align: center;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      }
+
+      label {
+        display: block;
+        font-size: 18px;
+        margin-bottom: 10px;
+      }
+
+      input {
+        width: 100px;
+        padding: 5px 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+
+      .timer {
+        font-size: 48px;
+        margin: 20px 0;
+      }
+
+      .buttons {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+      }
+
+      .button {
+        padding: 10px 20px;
+        font-size: 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        background-color: #007bff;
+        color: #fff;
+        transition: background-color 0.3s ease;
+      }
+
+      .button:hover {
+        background-color: #0056b3;
+      }
+
+      .button:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="timer-container">
+      <label for="timeInput">Enter time in seconds:</label>
+      <input type="number" id="timeInput" min="1" step="1" />
+      <div class="timer">00:00:00</div>
+      <div class="buttons">
+        <button id="startButton" class="button" onclick="startTimer()">
+          Start
+        </button>
+        <button
+          id="stopButton"
+          class="button"
+          onclick="pauseOrResumeTimer()"
+          disabled
+        >
+          Stop
+        </button>
+        <button id="resetButton" class="button" onclick="resetTimer()" disabled>
+          Reset
+        </button>
+      </div>
+    </div>
+
+    <script>
+      let intervalId;
+      let initialTime = 0;
+      let time = 0;
+      let isPaused = false;
+
+      function updateTimerDisplay() {
+        const minutes = Math.floor(time / 60);
+        const seconds = time % 60;
+        const formattedTime = `${String(minutes).padStart(2, "0")}:${String(
+          seconds
+        ).padStart(2, "0")}`;
+        document.querySelector(".timer").textContent = formattedTime;
+      }
+
+      function startTimer() {
+        const inputElement = document.getElementById("timeInput");
+        time = parseInt(inputElement.value, 10);
+
+        if (isNaN(time) || time <= 0) {
+          alert("Please enter a valid positive number for the countdown.");
+          return;
+        }
+
+        if (intervalId) {
+          clearInterval(intervalId);
+        }
+
+        isPaused = false;
+        updateTimerDisplay();
+        disableButtons(true); // Disable the "Start" button and enable "Stop" and "Reset" buttons
+        intervalId = setInterval(() => {
+          if (!isPaused) {
+            if (time > 0) {
+              time--;
+              updateTimerDisplay();
+            } else {
+              clearInterval(intervalId);
+              disableButtons(false); // Countdown finished, enable the "Start" button and "Restart" button
+            }
+          }
+        }, 1000);
+
+        document.getElementById("stopButton").textContent = "Stop";
+      }
+
+      function pauseOrResumeTimer() {
+        if (!isPaused) {
+          clearInterval(intervalId);
+          isPaused = true;
+          document.getElementById("stopButton").textContent = "Restart";
+        } else {
+          isPaused = false;
+          intervalId = setInterval(() => {
+            if (!isPaused) {
+              if (time > 0) {
+                time--;
+                updateTimerDisplay();
+              } else {
+                clearInterval(intervalId);
+                disableButtons(false); // Countdown finished, enable the "Start" button
+              }
+            }
+          }, 1000);
+          document.getElementById("stopButton").textContent = "Stop";
+        }
+      }
+
+      function resetTimer() {
+        clearInterval(intervalId);
+        time = 0; // Reset the time to 0
+        document.getElementById("timeInput").value = "";
+        updateTimerDisplay();
+        disableButtons(false); // Enable the "Start" button and disable "Stop" and "Reset" buttons
+        document.getElementById("startButton").textContent = "Start";
+      }
+
+      function disableButtons(disable) {
+        document.getElementById("startButton").disabled = disable;
+        document.getElementById("stopButton").disabled = !disable;
+        document.getElementById("resetButton").disabled = !disable;
+      }
+    </script>
+  </body>
+</html>
